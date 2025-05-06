@@ -15,6 +15,16 @@ class Custom_CSS_Tab {
     private $option_name = 'embo_custom_css_options';
 
     /**
+     * Тип підвантаження постів: ajax або pagination.
+     *
+     * @var array
+     */
+    private $load_types = [
+        'ajax'       => 'Лінива підвантажка (Load more)',
+        'pagination' => 'Посторінкова навігація',
+    ];
+
+    /**
      * Реєструє налаштування: одна опція — масив із двох полів.
      */
     public function register_settings() {
@@ -36,6 +46,10 @@ class Custom_CSS_Tab {
             'import' => '',
             'css'    => '',
         ];
+        // 0) Тип підвантаження постів
+        $output['load_type'] = isset( $input['load_type'] ) && isset( $this->load_types[ $input['load_type'] ] )
+            ? $input['load_type']
+            : 'ajax';
         if ( isset( $input['import'] ) ) {
             // Обрізаємо теги <style> та небезпечні символи
             $imp = trim( str_replace( ['<style>','</style>'], '', $input['import'] ) );
@@ -57,6 +71,26 @@ class Custom_CSS_Tab {
             [ 'import' => '', 'css' => '' ]
         );
         ?>
+        <!-- 0) Тип підвантаження постів -->
+        <tr>
+            <th scope="row"><?php esc_html_e( 'Тип підвантаження постів', 'embo-settings' ); ?></th>
+            <td>
+                <?php foreach ( $this->load_types as $key => $label ) : ?>
+                    <label style="margin-right:15px;">
+                        <input
+                            type="radio"
+                            name="<?php echo esc_attr( $this->option_name ); ?>[load_type]"
+                            value="<?php echo esc_attr( $key ); ?>"
+                            <?php checked( $opts['load_type'], $key ); ?>
+                        />
+                        <?php echo esc_html( $label ); ?>
+                    </label>
+                <?php endforeach; ?>
+                <p class="description">
+                    <?php esc_html_e( 'Виберіть, як завантажувати пости: AJAX-кнопкою або класичною пагінацією.', 'embo-settings' ); ?>
+                </p>
+            </td>
+        </tr>
         <!-- Рядок для @import -->
         <tr>
             <th scope="row">

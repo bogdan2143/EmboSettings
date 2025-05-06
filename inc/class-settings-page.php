@@ -94,8 +94,8 @@ class Settings_Page {
                 <a href="?page=embo-colors&tab=cookies" class="nav-tab <?php echo $active_tab === 'cookies' ? 'nav-tab-active' : ''; ?>">
                     <?php esc_html_e( 'Cookies & Analytics', 'embo-settings' ); ?>
                 </a>
-                <a href="?page=embo-colors&tab=custom-css" class="nav-tab <?php echo $active_tab === 'custom-css' ? 'nav-tab-active' : ''; ?>">
-                    <?php esc_html_e( 'Custom CSS', 'embo-settings' ); ?>
+                <a href="?page=embo-colors&tab=custom-css" class="nav-tab <?php echo $active_tab==='custom-css'?'nav-tab-active':''; ?>">
+                    <?php esc_html_e( 'Custom CSS & Other', 'embo-settings' ); ?>
                 </a>
                 <a href="<?php echo esc_url( admin_url( 'nav-menus.php' ) ); ?>" class="nav-tab">
                     <?php esc_html_e( 'Меню', 'embo-settings' ); ?>

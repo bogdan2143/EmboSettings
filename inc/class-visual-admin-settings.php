@@ -19,6 +19,8 @@ class Visual_Admin_Settings {
      */
     public function modify_admin_menu() {
         remove_submenu_page( 'themes.php', 'nav-menus.php' );
+        // Видаляємо підменю «Editor» (редактор сайтів Gutenberg) у розділі «Вигляд»
+        remove_submenu_page( 'themes.php', 'site-editor.php' );
     }
 
     /**

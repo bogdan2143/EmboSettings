@@ -1,6 +1,17 @@
 jQuery(document).ready(function($){
     // Ініціалізація WP Color Picker для полів з кольорами
-    $('.embo-color-field').wpColorPicker();
+    $('.embo-color-field').each(function() {
+        var $field = $(this);
+        var args = {};
+
+        // Для поля "Колір фону сайдбара" додаємо свій стандартний квадратик
+        if ( $field.attr('id') === 'aside_background_color' ) {
+            args.palettes = [ '#F7F9FA' ];
+        }
+
+        // Стартуємо колірний пікер із переданими налаштуваннями
+        $field.wpColorPicker( args );
+    });
 
     // Ініціалізація медіа-завантажувача (для логотипу)
     $('.embo-media-upload').on('click', function(e){
