@@ -4,9 +4,9 @@
  * Plugin URI:  https://embo-studio.ua/
  * Description: Розширення налаштувань теми EmboTheme для інтеграції з Gutenberg.
  * Додає можливість налаштування кольорів, брендингу, меню, а також банера куків і коду аналітики.
- * Author: embo
+ * Author: Pan Canon
  * Author URI: https://embo-studio.ua/
- * Version: 1.2
+ * Version: 1.3
  * Text Domain: embo-settings
  * Domain Path: /languages
  *
