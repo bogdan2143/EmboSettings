@@ -25,7 +25,6 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/class-cookie-analytics-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-settings-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-navigation-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-custom-css-tab.php';
-require_once plugin_dir_path(__FILE__).'inc/class-load-toggle-block.php';
 
 /**
  * Центральний клас плагіна, що ініціалізує всі модулі EmboSettings і реєструє
