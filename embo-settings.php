@@ -140,8 +140,8 @@ class EmboSettings_Plugin {
         // — Фронтенд: Custom CSS Main (в останній блок) —
         add_action( 'wp_head', [ $this->custom_css_tab, 'print_main_css' ], 1000 );
 
-        // — Фронтенд: Custom text (Footer)
-        add_action( 'init', [ $this, 'register_shortcodes' ], 10 );
+        // — Фронтенд: Dynamic Footer Note Block —
+        add_action( 'init', [ $this->branding_tab, 'register_footer_note_block' ], 20 );
     }
 
     /**

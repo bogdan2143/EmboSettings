@@ -232,12 +232,29 @@ class Branding_Tab {
     }
 
     /**
+     * Render callback for footer-note block.
+     *
+     * @param array  $attributes Block attributes (unused).
+     * @return string HTML for footer note.
+     */
+    public function render_footer_note( $attributes = [] ) {
+        $opts = get_option( $this->option_name, [] );
+        if ( ! empty( $opts['footer_note'] ) ) {
+            return '<div class="embo-footer-note">' . wp_kses_post( $opts['footer_note'] ) . '</div>';
+        }
+        return sprintf(
+            '<p>&copy; %1$s %2$s</p>',
+            date( 'Y' ),
+            esc_html( get_bloginfo( 'name' ) )
+        );
+    }
+
+    /**
      * Виводити у футері текст.
      */
-    public static function render_footer_note() {
-        $opts = get_option( 'embo_branding_options', [] );
-        if ( ! empty( $opts['footer_note'] ) ) {
-            echo '<div class="embo-footer-note">' . wp_kses_post( $opts['footer_note'] ) . '</div>';
-        }
+    public function register_footer_note_block() {
+        register_block_type( 'myblocktheme/footer-note', [
+            'render_callback' => [ $this, 'render_footer_note' ],
+        ] );
     }
 }
