@@ -6,15 +6,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Navigation_Tab {
 
     public function __construct() {
-        // реєструємо term‑meta «enable_toc» для категорій
+        // реєструємо term-meta «enable_toc» для категорій
         add_action( 'init', [ $this, 'register_category_meta' ] );
         // виводимо поле при створенні категорії
         add_action( 'category_add_form_fields', [ $this, 'add_category_field' ] );
         // виводимо поле при редагуванні категорії
         add_action( 'category_edit_form_fields', [ $this, 'edit_category_field' ] );
-        // зберігаємо значення term‑meta після створення категорії
+        // зберігаємо значення term-meta після створення категорії
         add_action( 'created_category', [ $this, 'save_category_field' ] );
-        // зберігаємо значення term‑meta після редагування категорії
+        // зберігаємо значення term-meta після редагування категорії
         add_action( 'edited_category', [ $this, 'save_category_field' ] );
         // фронтенд: фільтр для додавання id заголовкам та підключення скрипта
         add_filter( 'the_content', [ $this, 'add_heading_ids' ], 20 );
@@ -22,7 +22,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 1) реєструємо term‑meta «enable_toc» для категорій
+     * 1) реєструємо term-meta «enable_toc» для категорій
      */
     public function register_category_meta() {
         register_term_meta( 'category', 'enable_toc', [
@@ -64,7 +64,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 4) зберігаємо term‑meta
+     * 4) зберігаємо term-meta
      */
     public function save_category_field( $term_id ) {
         $enabled = isset( $_POST['enable_toc'] ) ? 1 : 0;
@@ -80,7 +80,7 @@ class Navigation_Tab {
         }
         libxml_use_internal_errors( true );
         $dom = new \DOMDocument;
-        // щоб не порушити кодування utf‑8
+        // щоб не порушити кодування utf-8
         $dom->loadHTML( '<?xml encoding="utf-8" ?>' . $content );
         foreach ( [ 'h2','h3','h4','h5','h6' ] as $tag ) {
             $els = $dom->getElementsByTagName( $tag );
@@ -102,7 +102,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 6) умовно підключаємо скрипти/стилі на single‑сторінці поста
+     * 6) умовно підключаємо скрипти/стилі на single-сторінці поста
      */
     public function enqueue_frontend_assets() {
         if ( ! is_singular( 'post' ) ) {
@@ -123,12 +123,19 @@ class Navigation_Tab {
             return;
         }
 
+        // Шлях та URL до скрипта
+        $relative = 'js/embo-toc.js';
+        $file_url = plugin_dir_url( __FILE__ ) . '../' . $relative;
+
+        // Динамічна версія через Asset_Loader
+        $version = \EmboSettings\Asset_Loader::version( $relative );
+
         // реєструємо та підключаємо скрипт
         wp_enqueue_script(
             'embo-toc',
-            plugin_dir_url( __FILE__ ) . '../js/embo-toc.js',
+            $file_url,
             [ 'jquery' ],
-            '1.0',
+            $version,
             true
         );
         // передаємо назви вкладок

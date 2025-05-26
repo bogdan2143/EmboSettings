@@ -1,62 +1,89 @@
-jQuery(document).ready(function($) {
-    if (!$('body').hasClass('single-post')) return;
+jQuery(function($) {
+  if (!$('body').hasClass('single-post')) return;
 
-    const $article = $('article');
-    const $existingAside = $('.global-aside').not('.toc-aside').first();
-    if (!$article.length || !$existingAside.length) return;
+  const $article       = $('article');
+  const $existingAside = $('.global-aside').not('.toc-aside').first();
+  const $artContent    = $article.find('.entry-content, .article-content');
+  if (!$article.length || !$existingAside.length || !$artContent.length) return;
 
-    const $tocBlock = $('<div class="toc-block"><h3 class="menu-label">Навігація по сторінці</h3><ul class="toc-list"></ul></div>');
-
-    $article.find('h1,h2,h3,h4,h5,h6').each(function() {
-        const $h = $(this);
-        let id = $h.attr('id');
-        if (!id) {
-            id = $h.text().toLowerCase().replace(/\s+/g, '-');
-            $h.attr('id', id);
-        }
-        const tag = this.tagName.toLowerCase();
-        $tocBlock.find('.toc-list').append(
-            '<li class="toc-' + tag + '"><a href="#' + id + '">' + $h.text() + '</a></li>'
-        );
-    });
-
-    // Обгортка- aside для десктопа
-    const $tocAside = $('<div class="global-aside toc-aside"></div>').append($tocBlock);
-
-    // Обгортка для мобілки (без aside)
-    const $mobileTocWrapper = $('<div class="toc-inline"></div>').append($tocBlock.clone());
-
-    // Вставити початковий стан
-    if (window.innerWidth > 1024) {
-        $existingAside.before($tocAside);
-    } else {
-        const $meta = $article.find('.article-meta');
-        if ($meta.length) {
-            $meta.after($mobileTocWrapper);
-        }
+  // Збираємо TOC
+  const $tocBlock = $('<div class="toc-block"><h3 class="menu-label">Навігація по сторінці</h3><ul class="toc-list"></ul></div>');
+  $article.find('h1,h2,h3,h4,h5,h6').each(function() {
+    const $h = $(this);
+    let id = $h.attr('id');
+    if (!id) {
+      id = $h.text().toLowerCase().trim().replace(/\s+/g, '-');
+      $h.attr('id', id);
     }
+    $tocBlock.find('.toc-list')
+             .append(`<li class="toc-${this.tagName.toLowerCase()}"><a href="#${id}">${$h.text()}</a></li>`);
+  });
+  const $tocAside         = $('<div class="global-aside toc-aside"></div>').append($tocBlock);
+  const $mobileTocWrapper = $('<div class="toc-inline"></div>').append($tocBlock.clone());
 
-    // Обробник ресайзу
-    let isDesktop = window.innerWidth > 1024;
+  // Поріг «десктопа»
+  let isDesktop = window.matchMedia('(min-width:1025px)').matches;
+  const stickyTop = 20; // px від верху
 
-    $(window).on('resize', function() {
-        const nowDesktop = window.innerWidth > 1024;
-        if (nowDesktop === isDesktop) return; // ничего не менялось
+  // Перерахунок і оновлення sticky-стану
+  function updateSticky() {
+    const scrollY    = $(window).scrollTop();
+    const artTop     = $artContent.offset().top;
+    const artBottom  = artTop + $artContent.outerHeight();
+    const firstH     = $tocAside.outerHeight();
+    const marginB    = parseInt($tocAside.css('margin-bottom'), 10) || 0;
+    // точка, після якої перший aside відлипне
+    const breakPoint = artBottom - stickyTop - firstH - marginB;
 
-        // Видалити поточні версії
-        $('.toc-aside, .toc-inline').remove();
+    if (scrollY < breakPoint) {
+      // перший прилипає зверху, другий під першим
+      $tocAside.css({ position: 'sticky', top: stickyTop + 'px', bottom: 'auto' });
+      $existingAside.css({
+        position: 'sticky',
+        top: (stickyTop + firstH + marginB) + 'px',
+        bottom: 'auto'
+      });
+    } else {
+      // перший static (залишається місці), другий прилипає зверху
+      $tocAside.css({ position: 'static', top: 'auto', bottom: 'auto' });
+      $existingAside.css({ position: 'sticky', top: stickyTop + 'px', bottom: 'auto' });
+    }
+  }
 
-        if (nowDesktop) {
-            // Десктоп: вставити як aside
-            $existingAside.before($tocAside);
-        } else {
-            // Мобільний: всередину статті
-            const $meta = $article.find('.article-meta');
-            if ($meta.length) {
-                $meta.after($mobileTocWrapper);
-            }
-        }
+  // Прив'язка обробників scroll/resize та подій load
+  function bindSticky() {
+    updateSticky();
+    $(window).on('scroll resize', updateSticky);
+    // на випадок, якщо сторінка завантажена принижній позиції або підвантажилися зображення
+    $(window).on('load', updateSticky);
+    $article.find('img').on('load', updateSticky);
+  }
 
-        isDesktop = nowDesktop;
-    });
+  // Початкова вставка блоків
+  if (isDesktop) {
+    $existingAside.before($tocAside);
+    bindSticky();
+  } else {
+    const $meta = $article.find('.article-meta').first();
+    if ($meta.length) $meta.after($mobileTocWrapper);
+  }
+
+  // Перемикання desktop ↔ mobile
+  $(window).on('resize', function() {
+    const nowDesk = window.matchMedia('(min-width:1025px)').matches;
+    if (nowDesk === isDesktop) return;
+
+    if (nowDesk) {
+      $('.toc-inline').remove();
+      $existingAside.before($tocAside);
+      bindSticky();
+    } else {
+      $(window).off('scroll resize load', updateSticky);
+      $tocAside.remove();
+      const $meta = $article.find('.article-meta').first();
+      if ($meta.length) $meta.after($mobileTocWrapper);
+      $existingAside.css({ position: 'static', top: 'auto' });
+    }
+    isDesktop = nowDesk;
+  });
 });

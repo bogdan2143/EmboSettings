@@ -17,7 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Захист від прямого доступу
 }
 
+// Власна константа версії для fallback
+if ( ! defined( 'EMBO_SETTINGS_VERSION' ) ) {
+    define( 'EMBO_SETTINGS_VERSION', '1.3' );
+}
+
 // Підключення файлів класів із логікою плагіна
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-asset-loader.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-colors-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-branding-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-visual-admin-settings.php';
