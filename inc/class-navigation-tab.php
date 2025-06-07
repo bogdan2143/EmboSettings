@@ -1,28 +1,35 @@
 <?php
 namespace EmboSettings;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
+/**
+ * Клас для додавання вкладки «Навігація по сторінці» в бокове меню.
+ */
 class Navigation_Tab {
 
     public function __construct() {
-        // реєструємо term-meta «enable_toc» для категорій
+        // 1) реєструємо term-meta «enable_toc» для категорій
         add_action( 'init', [ $this, 'register_category_meta' ] );
-        // виводимо поле при створенні категорії
+        // 2) виводимо поле при створенні категорії
         add_action( 'category_add_form_fields', [ $this, 'add_category_field' ] );
-        // виводимо поле при редагуванні категорії
+        // 3) виводимо поле при редагуванні категорії
         add_action( 'category_edit_form_fields', [ $this, 'edit_category_field' ] );
-        // зберігаємо значення term-meta після створення категорії
+        // 4) зберігаємо значення term-meta після створення категорії
         add_action( 'created_category', [ $this, 'save_category_field' ] );
-        // зберігаємо значення term-meta після редагування категорії
+        // 4) зберігаємо значення term-meta після редагування категорії
         add_action( 'edited_category', [ $this, 'save_category_field' ] );
-        // фронтенд: фільтр для додавання id заголовкам та підключення скрипта
+        // 5) фільтр для додавання id заголовкам
         add_filter( 'the_content', [ $this, 'add_heading_ids' ], 20 );
-        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ] );
+        // 6) умовно підключаємо скрипти/стилі на frontend з пріоритетом 20,
+        //    щоб наш скрипт завантажувався після screen-utils :contentReference[oaicite:0]{index=0}
+        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ], 20 );
     }
 
     /**
-     * 1) реєструємо term-meta «enable_toc» для категорій
+     * 1) Реєструємо term-meta «enable_toc» для категорій.
      */
     public function register_category_meta() {
         register_term_meta( 'category', 'enable_toc', [
@@ -35,7 +42,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 2) виводимо чекбокс при додаванні категорії
+     * 2) Додаємо чекбокс при створенні категорії.
      */
     public function add_category_field( $taxonomy ) {
         ?>
@@ -48,7 +55,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 3) виводимо чекбокс при редагуванні категорії
+     * 3) Додаємо чекбокс при редагуванні категорії.
      */
     public function edit_category_field( $term ) {
         $enabled = get_term_meta( $term->term_id, 'enable_toc', true );
@@ -64,7 +71,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 4) зберігаємо term-meta
+     * 4) Зберігаємо term-meta.
      */
     public function save_category_field( $term_id ) {
         $enabled = isset( $_POST['enable_toc'] ) ? 1 : 0;
@@ -72,7 +79,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 5) на фронтенді: додаємо id всім h2–h6 у контенті
+     * 5) Додаємо id всім заголовкам h2–h6 у контенті.
      */
     public function add_heading_ids( $content ) {
         if ( ! is_singular() ) {
@@ -102,7 +109,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 6) умовно підключаємо скрипти/стилі на single-сторінці поста
+     * 6) Умовно підключаємо скрипти/стилі на single-сторінці поста.
      */
     public function enqueue_frontend_assets() {
         if ( ! is_singular( 'post' ) ) {
@@ -118,39 +125,36 @@ class Navigation_Tab {
                 break;
             }
         }
-
         if ( ! $show_nav ) {
             return;
         }
 
-        // Шлях та URL до скрипта
+        // Шлях та версія скрипта
         $relative = 'js/embo-toc.js';
         $file_url = plugin_dir_url( __FILE__ ) . '../' . $relative;
+        $version  = \EmboSettings\Asset_Loader::version( $relative );
 
-        // Динамічна версія через Asset_Loader
-        $version = \EmboSettings\Asset_Loader::version( $relative );
+        // Переконаємось, що утиліта screen-utils підключена перед нашим скриптом
+        if ( wp_script_is( 'screen-utils', 'registered' ) ) {
+            wp_enqueue_script( 'screen-utils' );
+        }
 
-        // реєструємо та підключаємо скрипт
+        // Підключаємо наш TOC-скрипт з новою залежністю від screen-utils
         wp_enqueue_script(
             'embo-toc',
             $file_url,
-            [ 'jquery' ],
+            [ 'jquery', 'screen-utils' ], // тепер залежить і від screen-utils :contentReference[oaicite:1]{index=1}
             $version,
             true
         );
-        // передаємо назви вкладок
+
+        // Локалізація рядків для скрипта
         wp_localize_script( 'embo-toc', 'EmboSettingsI18n', [
             'tabPosts' => __( 'Хронологія', 'embo-settings' ),
             'tabToc'   => __( 'Навігація по сторінці', 'embo-settings' ),
         ] );
-        // (опційно) невеликий CSS для вкладок
-        $css = "
-        .tab-panel{ display:none; }
-        .tab-panel.active{ display:block; }
-        .toc-list{ list-style:none; padding-left:0; }
-        .toc-list li{ margin-bottom:.5em; }
-        .toc-list li.toc-h3{ padding-left:1em; }
-        ";
-        wp_add_inline_style( 'myblocktheme-style', $css );
     }
 }
+
+// У головному файлі плагіна (наприклад, embo-settings.php) створіть екземпляр:
+new Navigation_Tab();
