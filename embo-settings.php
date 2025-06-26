@@ -148,6 +148,8 @@ class EmboSettings_Plugin {
 
         // — Фронтенд: Dynamic Footer Note Block —
         add_action( 'init', [ $this->branding_tab, 'register_footer_note_block' ], 20 );
+        // Регистрируем шорткоды (вызов register_shortcodes)
+        add_action( 'init', [ $this, 'register_shortcodes' ], 15 );
     }
 
     /**

@@ -240,7 +240,9 @@ class Branding_Tab {
     public function render_footer_note( $attributes = [] ) {
         $opts = get_option( $this->option_name, [] );
         if ( ! empty( $opts['footer_note'] ) ) {
-            return '<div class="embo-footer-note">' . wp_kses_post( $opts['footer_note'] ) . '</div>';
+            // Обрабатываем шорткоды внутри текста, затем безопасно выводим HTML
+            $content = do_shortcode( $opts['footer_note'] );
+            return '<div class="embo-footer-note">' . wp_kses_post( $content ) . '</div>';
         }
         return sprintf(
             '<p>&copy; %1$s %2$s</p>',
