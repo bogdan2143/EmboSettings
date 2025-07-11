@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   class EmboTOC {
     constructor() {
-      // Лише для одиночних постів
+      // Only for single posts
       if (!document.body.classList.contains('single-post')) return;
 
       this.article       = document.querySelector('article');
@@ -11,23 +11,23 @@ document.addEventListener('DOMContentLoaded', () => {
       this.artContent    = this.article?.querySelector('.entry-content, .article-content');
       if (!this.article || !this.existingAside || !this.artContent) return;
 
-      this.stickyTop = 20; // px від верху
+      this.stickyTop = 20; // px from top
       this._buildTOC();
       this._initResponsive();
     }
 
-    // 1) Формуємо TOC та мобільну копію
+    // 1) Build the TOC and a mobile copy
     _buildTOC() {
-      // Основний блок TOC
+      // Main TOC block
       this.tocBlock = document.createElement('div');
       this.tocBlock.className = 'toc-block';
       this.tocBlock.innerHTML = `
-        <h3 class="menu-label">Навігація по сторінці</h3>
+        <h3 class="menu-label">${EmboSettingsI18n.tabToc}</h3>
         <ul class="toc-list"></ul>
       `;
       const list = this.tocBlock.querySelector('.toc-list');
 
-      // Перебираємо заголовки та додаємо їх до списку
+      // Loop through headings and add them to the list
       this.article.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(el => {
         let id = el.id;
         if (!id) {
@@ -40,26 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
         list.appendChild(li);
       });
 
-      // Обгортка для десктопа
+      // Wrapper for desktop
       this.tocAside = document.createElement('div');
       this.tocAside.className = 'global-aside toc-aside';
       this.tocAside.appendChild(this.tocBlock);
 
-      // Клон для мобільних
+      // Clone for mobile
       this.mobileWrapper = document.createElement('div');
       this.mobileWrapper.className = 'toc-inline';
       this.mobileWrapper.appendChild(this.tocBlock.cloneNode(true));
     }
 
-    // 2) Ініціалізуємо ScreenObserver для перемикання desktop ↔ mobile
+    // 2) Initialize ScreenObserver for switching desktop ↔ mobile
     _initResponsive() {
-      this._cleanup();  // на випадок попередніх підписок
+      this._cleanup();  // in case of previous subscriptions
       this.screenObs = new ScreenObserver(1025);
       this.screenObs.onEnter(() => this._insertDesktop());
       this.screenObs.onLeave(() => this._insertMobile());
     }
 
-    // Вставка для десктопа
+    // Insert for desktop
     _insertDesktop() {
       this._cleanup();
       this.mobileWrapper.remove();
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       this._bindSticky();
     }
 
-    // Вставка для мобільних
+    // Insert for mobile
     _insertMobile() {
       this._cleanup();
       this.tocAside.remove();
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (meta) meta.insertAdjacentElement('afterend', this.mobileWrapper);
     }
 
-    // Прибираємо всі слухачі та скидаємо стилі «прилипання»
+    // Remove all listeners and reset sticky styles
     _cleanup() {
       if (this._stickyHandler) {
         window.removeEventListener('scroll', this._stickyHandler);
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
           img.removeEventListener('load', this._stickyHandler)
         );
       }
-      // скидання стилевих змін
+      // reset style changes
       Object.assign(this.existingAside.style, {
         position: '', top: '', bottom: ''
       });
@@ -97,10 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 3) Підписуємося на scroll/resize/load і завантаження зображень
+    // 3) Subscribe to scroll/resize/load and image loading
     _bindSticky() {
       this._stickyHandler = this._updateSticky.bind(this);
-      // відразу обчислюємо один раз
+      // compute once immediately
       this._updateSticky();
       window.addEventListener('scroll', this._stickyHandler);
       window.addEventListener('resize', this._stickyHandler);
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
 
-    // 4) Обчислюємо, де «прилипнути»
+    // 4) Calculate where to stick
     _updateSticky() {
       const scrollY = window.scrollY || window.pageYOffset;
       const artRect = this.artContent.getBoundingClientRect();
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 5) Оновлюємо CSS-змінну з висотою TOC
+    // 5) Update the CSS variable with TOC height
     _updateTocHeight() {
       const h = this.tocAside.offsetHeight;
       document.documentElement.style.setProperty('--toc-height', `${h}px`);

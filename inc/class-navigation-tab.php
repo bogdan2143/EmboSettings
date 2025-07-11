@@ -6,30 +6,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Клас для додавання вкладки «Навігація по сторінці» в бокове меню.
+ * Adds the "Page Navigation" tab to the sidebar.
  */
 class Navigation_Tab {
 
-    public function __construct() {
-        // 1) реєструємо term-meta «enable_toc» для категорій
+    /**
+     * Registers all hooks for the navigation functionality.
+     */
+    public function register_hooks() {
+        // 1) register the "enable_toc" term meta for categories
         add_action( 'init', [ $this, 'register_category_meta' ] );
-        // 2) виводимо поле при створенні категорії
+        // 2) output the field when creating a category
         add_action( 'category_add_form_fields', [ $this, 'add_category_field' ] );
-        // 3) виводимо поле при редагуванні категорії
+        // 3) output the field when editing a category
         add_action( 'category_edit_form_fields', [ $this, 'edit_category_field' ] );
-        // 4) зберігаємо значення term-meta після створення категорії
+        // 4) save term meta after creating a category
         add_action( 'created_category', [ $this, 'save_category_field' ] );
-        // 4) зберігаємо значення term-meta після редагування категорії
+        // 4) save term meta after editing a category
         add_action( 'edited_category', [ $this, 'save_category_field' ] );
-        // 5) фільтр для додавання id заголовкам
+        // 5) filter to add ids to headings
         add_filter( 'the_content', [ $this, 'add_heading_ids' ], 20 );
-        // 6) умовно підключаємо скрипти/стилі на frontend з пріоритетом 20,
-        //    щоб наш скрипт завантажувався після screen-utils :contentReference[oaicite:0]{index=0}
+        // 6) conditionally enqueue scripts/styles on the front end with priority 20
+        //    so our script loads after screen-utils
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ], 20 );
     }
 
     /**
-     * 1) Реєструємо term-meta «enable_toc» для категорій.
+     * 1) Register the "enable_toc" term meta for categories.
      */
     public function register_category_meta() {
         register_term_meta( 'category', 'enable_toc', [
@@ -42,7 +45,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 2) Додаємо чекбокс при створенні категорії.
+     * 2) Add a checkbox when creating a category.
      */
     public function add_category_field( $taxonomy ) {
         ?>
@@ -55,7 +58,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 3) Додаємо чекбокс при редагуванні категорії.
+     * 3) Add a checkbox when editing a category.
      */
     public function edit_category_field( $term ) {
         $enabled = get_term_meta( $term->term_id, 'enable_toc', true );
@@ -71,7 +74,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 4) Зберігаємо term-meta.
+     * 4) Save term meta.
      */
     public function save_category_field( $term_id ) {
         $enabled = isset( $_POST['enable_toc'] ) ? 1 : 0;
@@ -79,7 +82,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 5) Додаємо id всім заголовкам h2–h6 у контенті.
+     * 5) Add ids to all h2–h6 headings in the content.
      */
     public function add_heading_ids( $content ) {
         if ( ! is_singular() ) {
@@ -87,7 +90,7 @@ class Navigation_Tab {
         }
         libxml_use_internal_errors( true );
         $dom = new \DOMDocument;
-        // щоб не порушити кодування utf-8
+        // ensure UTF-8 encoding isn't broken
         $dom->loadHTML( '<?xml encoding="utf-8" ?>' . $content );
         foreach ( [ 'h2','h3','h4','h5','h6' ] as $tag ) {
             $els = $dom->getElementsByTagName( $tag );
@@ -99,7 +102,7 @@ class Navigation_Tab {
                 }
             }
         }
-        // витягуємо вміст body
+        // extract body content
         $body = $dom->getElementsByTagName( 'body' )->item(0);
         $out  = '';
         foreach ( $body->childNodes as $child ) {
@@ -109,7 +112,7 @@ class Navigation_Tab {
     }
 
     /**
-     * 6) Умовно підключаємо скрипти/стилі на single-сторінці поста.
+     * 6) Conditionally enqueue assets on single post pages.
      */
     public function enqueue_frontend_assets() {
         if ( ! is_singular( 'post' ) ) {
@@ -117,7 +120,7 @@ class Navigation_Tab {
         }
         global $post;
 
-        // перевіряємо, чи увімкнена навігація хоча б в одній категорії
+        // check if navigation is enabled in at least one category
         $show_nav = false;
         foreach ( get_the_category( $post->ID ) as $cat ) {
             if ( get_term_meta( $cat->term_id, 'enable_toc', true ) ) {
@@ -129,32 +132,29 @@ class Navigation_Tab {
             return;
         }
 
-        // Шлях та версія скрипта
+        // Script path and version
         $relative = 'js/embo-toc.js';
         $file_url = plugin_dir_url( __FILE__ ) . '../' . $relative;
         $version  = \EmboSettings\Asset_Loader::version( $relative );
 
-        // Переконаємось, що утиліта screen-utils підключена перед нашим скриптом
+        // Ensure that screen-utils is enqueued before our script
         if ( wp_script_is( 'screen-utils', 'registered' ) ) {
             wp_enqueue_script( 'screen-utils' );
         }
 
-        // Підключаємо наш TOC-скрипт з новою залежністю від screen-utils
+        // Enqueue our TOC script with the screen-utils dependency
         wp_enqueue_script(
             'embo-toc',
             $file_url,
-            [ 'jquery', 'screen-utils' ], // тепер залежить і від screen-utils :contentReference[oaicite:1]{index=1}
+            [ 'jquery', 'screen-utils' ], // depends on screen-utils
             $version,
             true
         );
 
-        // Локалізація рядків для скрипта
+        // Localize strings for the script
         wp_localize_script( 'embo-toc', 'EmboSettingsI18n', [
             'tabPosts' => __( 'Хронологія', 'embo-settings' ),
             'tabToc'   => __( 'Навігація по сторінці', 'embo-settings' ),
         ] );
     }
 }
-
-// У головному файлі плагіна (наприклад, embo-settings.php) створіть екземпляр:
-new Navigation_Tab();

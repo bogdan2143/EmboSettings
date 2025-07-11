@@ -1,8 +1,8 @@
 <?php
 /**
- * Клас для відображення сторінки налаштувань плагіна.
+ * Displays the plugin settings page.
  *
- * Об'єднує вкладки «Налаштування кольорів теми» та «Брендинг», а також посилання на меню.
+ * Combines the "Theme Colors" and "Branding" tabs and links to the menu.
  *
  * @package EmboSettings
  */
@@ -15,47 +15,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Settings_Page {
 
     /**
-     * Об'єкт класу для налаштувань кольорів.
+     * Colors settings module instance.
      *
      * @var Colors_Tab
      */
     private $colors_tab;
 
     /**
-     * Об'єкт класу для налаштувань брендингу.
+     * Branding settings module instance.
      *
      * @var Branding_Tab
      */
     private $branding_tab;
 
     /**
-     * Об'єкт класу для налаштувань куків і аналітики.
+     * Cookie and analytics settings module instance.
      *
      * @var Cookie_Analytics_Tab
      */
     private $cookie_analytics_tab;
 
     /**
-     * Конструктор класу.
+     * Constructor.
      *
-     * @param Colors_Tab   $colors_tab
-     * @param Branding_Tab $branding_tab
+     * @param Colors_Tab          $colors_tab
+     * @param Branding_Tab        $branding_tab
      * @param Cookie_Analytics_Tab $cookie_analytics_tab
+     * @param Custom_CSS_Tab      $custom_css_tab
      */
     public function __construct(
         Colors_Tab $colors_tab,
         Branding_Tab $branding_tab,
         Cookie_Analytics_Tab $cookie_analytics_tab,
-        Custom_CSS_Tab $custom_css_tab   // <— добавлено
+        Custom_CSS_Tab $custom_css_tab
     ) {
         $this->colors_tab           = $colors_tab;
         $this->branding_tab         = $branding_tab;
         $this->cookie_analytics_tab = $cookie_analytics_tab;
-        $this->custom_css_tab       = $custom_css_tab;    // <— сохраним
+        $this->custom_css_tab       = $custom_css_tab;
     }
 
     /**
-     * Реєструє підменю плагіна в адмінці.
+     * Register the plugin submenu in the admin.
      */
     public function register_submenu() {
         add_submenu_page(
@@ -69,12 +70,9 @@ class Settings_Page {
     }
 
     /**
-     * Відображає головну сторінку налаштувань з вкладками.
+     * Render the main settings page with tabs.
      */
     public function render_settings_page() {
-        settings_errors( 'embo_colors_options' );
-        settings_errors( 'embo_branding_options' );
-        settings_errors( 'embo_cookie_analytics_options' );
         settings_errors( 'embo_colors_options' );
         settings_errors( 'embo_branding_options' );
         settings_errors( 'embo_cookie_analytics_options' );
@@ -112,9 +110,9 @@ class Settings_Page {
                 ?>
                 <form method="post" action="options.php">
                     <?php
-                    // Виводимо nonce і приховані поля для збереження опції
+                    // Output nonce and hidden fields for option saving
                     settings_fields( 'embo_custom_css_group' );
-                    // Тут же виведуться помилки, якщо вони є
+                    // Errors will be displayed here if any
                     settings_errors( 'embo_custom_css' );
                     ?>
                     <table class="form-table">

@@ -8,25 +8,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Cookie_Analytics_Tab {
 
     /**
-     * Назва опції для збереження налаштувань cookies & analytics.
+     * Option name used to store cookies and analytics settings.
      *
      * @var string
      */
     private $option_name = 'embo_cookie_analytics_options';
 
     /**
-     * Опції за замовчуванням.
+     * Default options populated in the constructor.
      *
      * @var array
      */
-    private $default_options = [
-        'embo_cookie_message'     => "This site uses cookies to improve user experience. <a href='#'>Learn more</a>.",
-        'cookie_button_text' => 'Accept',
-        'ga_code'            => '',
-    ];
+    private $default_options = [];
 
     /**
-     * Реєструє налаштування у Settings API.
+     * Constructor initializes the default options with translated strings.
+     */
+    public function __construct() {
+        $this->default_options = [
+            'embo_cookie_message' => __( 'Цей сайт використовує cookies для покращення користувацького досвіду. <a href="#">Дізнатися більше</a>.', 'embo-settings' ),
+            'cookie_button_text'  => __( 'Прийняти', 'embo-settings' ),
+            'ga_code'             => '',
+        ];
+    }
+
+    /**
+     * Register settings using the Settings API.
      */
     public function register_settings() {
         register_setting(
@@ -37,7 +44,7 @@ class Cookie_Analytics_Tab {
     }
 
     /**
-     * Санітизує вхідні дані.
+     * Sanitize input data.
      */
     public function sanitize_options( $input ) {
         $sanitized = [];
@@ -54,10 +61,10 @@ class Cookie_Analytics_Tab {
     }
 
     /**
-     * Відображає форму налаштувань у адмінці.
+     * Display the settings form in the admin area.
      */
     public function render_settings_page() {
-        // Получаем сохранённые опции (или дефолты)
+        // Retrieve saved options or defaults
         $opts = get_option( $this->option_name, $this->default_options );
         ?>
         <form method="post" action="options.php">
@@ -124,7 +131,7 @@ class Cookie_Analytics_Tab {
     }
 
     /**
-     * Підключає фронтенд‑стилі для банера (inline CSS або Bulma).
+     * Enqueue frontend styles for the banner (inline CSS or Bulma).
      */
     public function enqueue_assets() {
         wp_add_inline_style( 'myblocktheme-style', '
@@ -153,7 +160,7 @@ class Cookie_Analytics_Tab {
     }
 
     /**
-     * Виводить код GA у <head> перед </head>.
+     * Output GA code inside <head> before closing tag.
      */
     public function print_ga_code() {
         $opts = get_option( $this->option_name, $this->default_options );
@@ -163,7 +170,7 @@ class Cookie_Analytics_Tab {
     }
 
     /**
-     * Виводить на фронті банер куків, якщо ще не збережено згоди.
+     * Render the cookie banner on the front end if consent is not stored.
      */
     public function render_cookie_banner() {
         $opts = get_option( $this->option_name, $this->default_options );

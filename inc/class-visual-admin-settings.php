@@ -1,7 +1,7 @@
 <?php
 /**
- * Клас для візуальних налаштувань адміністративної панелі.
- * Управляє видаленням стандартних підменю та додаванням додаткових метабоксів.
+ * Visual tweaks for the admin panel.
+ * Manages removal of default submenus and adds custom metaboxes.
  *
  * @package EmboSettings
  */
@@ -15,16 +15,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Visual_Admin_Settings {
 
     /**
-     * Видаляє стандартне підменю "Меню" з розділу "Вигляд".
+     * Remove the default "Menus" submenu from the Appearance section.
      */
     public function modify_admin_menu() {
         remove_submenu_page( 'themes.php', 'nav-menus.php' );
-        // Видаляємо підменю «Editor» (редактор сайтів Gutenberg) у розділі «Вигляд»
+        // Remove the "Editor" submenu (Gutenberg site editor) under Appearance
         remove_submenu_page( 'themes.php', 'site-editor.php' );
     }
 
     /**
-     * Додає метабокс на сторінці "Меню" з посиланням на налаштування EmboSettings.
+     * Add a metabox on the "Menus" page linking to EmboSettings.
      */
     public function add_nav_menu_meta_box() {
         add_meta_box(
@@ -38,7 +38,7 @@ class Visual_Admin_Settings {
     }
 
     /**
-     * Виводить контент метабоксу з посиланням на сторінку плагіна.
+     * Render the metabox content linking to the plugin page.
      */
     public function render_nav_menu_plugin_link_metabox() {
         ?>

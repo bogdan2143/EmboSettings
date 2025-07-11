@@ -1,6 +1,6 @@
 <?php
 /**
- * Клас для налаштувань кольорів – функціональність вкладки «Налаштування кольорів теми».
+ * Handles color settings and the "Theme Colors" tab.
  *
  * @package EmboSettings
  */
@@ -14,14 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Colors_Tab {
 
     /**
-     * Назва опції для збереження налаштувань кольорів.
+     * Option name for storing color settings.
      *
      * @var string
      */
     private $option_name = 'embo_colors_options';
 
     /**
-     * Масив дефолтних значень кольорів.
+     * Default color values.
      *
      * @var array
      */
@@ -34,7 +34,7 @@ class Colors_Tab {
         'footer_background_color'   => '#333333',
         'aside_background_color'    => '#f1f1f1',
 
-        // нові опції
+        // new options
         'header_menu_link_color'    => '#ffffff',
         'header_menu_hover_color'   => '#dddddd',
         'footer_menu_link_color'    => '#ffffff',
@@ -47,14 +47,14 @@ class Colors_Tab {
     );
 
     /**
-     * Конструктор класу.
+     * Constructor.
      */
     public function __construct() {
-        // Логіка ініціалізації в головному класі EmboSettings_Plugin.
+        // Initialization logic resides in EmboSettings_Plugin.
     }
 
     /**
-     * Реєстрація налаштувань через Settings API.
+     * Register settings via the Settings API.
      */
     public function register_settings() {
         register_setting(
@@ -65,7 +65,7 @@ class Colors_Tab {
     }
 
     /**
-     * Санітує вхідні дані та об’єднує з дефолтними.
+     * Sanitize input and merge with defaults.
      *
      * @param array $input
      * @return array
@@ -85,7 +85,7 @@ class Colors_Tab {
     }
 
     /**
-     * Приватна функція для санітизації HEX-значень.
+     * Helper to sanitize HEX values.
      *
      * @param string $color
      * @param string $default
@@ -104,7 +104,7 @@ class Colors_Tab {
     }
 
     /**
-     * Скидання налаштувань до дефолтних.
+     * Reset settings to defaults.
      */
     public function handle_reset() {
         if ( isset( $_GET['reset_embo_colors'] ) && check_admin_referer( 'reset_embo_colors_nonce' ) ) {
@@ -119,7 +119,7 @@ class Colors_Tab {
     }
 
     /**
-     * Тригер на підтягання з theme.json.
+     * Trigger pulling values from theme.json.
      */
     public function handle_pull_config() {
         if ( isset( $_GET['pull_embo_colors'] ) && check_admin_referer( 'pull_embo_colors_nonce' ) ) {
@@ -128,7 +128,7 @@ class Colors_Tab {
     }
 
     /**
-     * Підтягує значення з theme.json та оновлює опції.
+     * Pull values from theme.json and update options.
      */
     public function pull_config_values() {
         $file = get_template_directory() . '/theme.json';
@@ -166,7 +166,7 @@ class Colors_Tab {
                     $new_options['aside_background_color'] = $item['color'];
                     break;
 
-                // нові слаги
+                // new slugs
                 case 'header-menu-link':
                     $new_options['header_menu_link_color'] = $item['color'];
                     break;
@@ -210,7 +210,7 @@ class Colors_Tab {
     }
 
     /**
-     * Підключає Color Picker та медіа на сторінці налаштувань.
+     * Enqueue the Color Picker and media scripts on the settings page.
      *
      * @param string $hook_suffix
      */
@@ -227,10 +227,14 @@ class Colors_Tab {
             '1.0',
             true
         );
+        wp_localize_script( 'embo-settings-js', 'EmboSettingsAdmin', [
+            'logoTitle'  => __( 'Select logo image', 'embo-settings' ),
+            'logoButton' => __( 'Choose', 'embo-settings' ),
+        ] );
     }
 
     /**
-     * Підключає CSS на фронтенді за збереженими налаштуваннями.
+     * Enqueue CSS on the frontend based on saved settings.
      */
     public function enqueue_frontend_colors() {
         $options = wp_parse_args(
@@ -239,7 +243,7 @@ class Colors_Tab {
         );
         $custom_css = '';
 
-        // існуючі правила
+        // existing rules
         if ( ! empty( $options['background_color'] ) ) {
             $custom_css .= "body { background-color: {$options['background_color']}; }\n";
         }
@@ -262,7 +266,7 @@ class Colors_Tab {
             $custom_css .= ".global-aside { background-color: {$options['aside_background_color']}; }\n";
         }
 
-        // нові правила
+        // new rules
         if ( ! empty( $options['header_menu_link_color'] ) ) {
             $custom_css .= ".navbar .navbar-item a { color: {$options['header_menu_link_color']}; }\n";
         }
@@ -297,7 +301,7 @@ class Colors_Tab {
     }
 
     /**
-     * Переоприділяє палітру Gutenberg відповідно до налаштувань.
+     * Override the Gutenberg palette according to saved settings.
      */
     public function override_gutenberg_palette() {
         $options = wp_parse_args(
@@ -306,7 +310,7 @@ class Colors_Tab {
         );
         $palette = array();
 
-        // існуючі кольори
+        // existing colors
         if ( ! empty( $options['background_color'] ) ) {
             $palette[] = array( 'name' => __( 'Фон', 'embo-settings' ),       'slug' => 'background',          'color' => $options['background_color'] );
         }
@@ -329,7 +333,7 @@ class Colors_Tab {
             $palette[] = array( 'name' => __( 'Фон сайдбара', 'embo-settings' ), 'slug' => 'aside-bg',           'color' => $options['aside_background_color'] );
         }
 
-        // нові кольори
+        // new colors
         if ( ! empty( $options['header_menu_link_color'] ) ) {
             $palette[] = array( 'name' => __( 'Меню (хедер)', 'embo-settings' ), 'slug' => 'header-menu-link',    'color' => $options['header_menu_link_color'] );
         }
@@ -365,7 +369,7 @@ class Colors_Tab {
     }
 
     /**
-     * Відображає HTML форму для налаштувань кольорів.
+     * Render the HTML form for the color settings.
      */
     public function render_colors_form() {
         $options = wp_parse_args(
@@ -420,7 +424,7 @@ class Colors_Tab {
                                value="<?php echo esc_attr( $options['aside_background_color'] ); ?>" /></td>
                 </tr>
 
-                <!-- нові поля -->
+                <!-- New fields -->
                 <tr>
                     <th scope="row"><label for="header_menu_link_color"><?php esc_html_e( 'Колір посилань меню (хедер)', 'embo-settings' ); ?></label></th>
                     <td><input type="text" class="embo-color-field" id="header_menu_link_color"

@@ -8,24 +8,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Custom_CSS_Tab {
 
     /**
-     * Назва опції для збереження імпорту і CSS.
+     * Option name used to store import lines and custom CSS.
      *
      * @var string
      */
     private $option_name = 'embo_custom_css_options';
 
     /**
-     * Тип підвантаження постів: ajax або pagination.
+     * Post loading type labels, populated in the constructor.
      *
      * @var array
      */
-    private $load_types = [
-        'ajax'       => 'Лінива підвантажка (Load more)',
-        'pagination' => 'Посторінкова навігація',
-    ];
+    private $load_types = [];
 
     /**
-     * Реєструє налаштування: одна опція — масив із двох полів.
+     * Constructor initializes radio button labels for load type.
+     */
+    public function __construct() {
+        $this->load_types = [
+            'ajax'       => __( 'Лінива підвантажка (Load more)', 'embo-settings' ),
+            'pagination' => __( 'Посторінкова навігація', 'embo-settings' ),
+        ];
+    }
+
+    /**
+     * Register the settings. One option contains two fields.
      */
     public function register_settings() {
         register_setting(
@@ -36,7 +43,7 @@ class Custom_CSS_Tab {
     }
 
     /**
-     * Санітизує вхідні дані (імпорт + власний CSS).
+     * Sanitize input (import and custom CSS).
      *
      * @param array $input
      * @return array
@@ -46,12 +53,12 @@ class Custom_CSS_Tab {
             'import' => '',
             'css'    => '',
         ];
-        // 0) Тип підвантаження постів
+        // 0) Post loading type
         $output['load_type'] = isset( $input['load_type'] ) && isset( $this->load_types[ $input['load_type'] ] )
             ? $input['load_type']
             : 'ajax';
         if ( isset( $input['import'] ) ) {
-            // Обрізаємо теги <style> та небезпечні символи
+            // Strip <style> tags and dangerous characters
             $imp = trim( str_replace( ['<style>','</style>'], '', $input['import'] ) );
             $output['import'] = wp_strip_all_tags( $imp );
         }
@@ -63,7 +70,7 @@ class Custom_CSS_Tab {
     }
 
     /**
-     * Виводить два поля в адмінці: «Імпорт» і «Custom CSS».
+     * Output two admin fields: "Import" and "Custom CSS".
      */
     public function render_settings_page() {
         $opts = wp_parse_args(
@@ -71,7 +78,7 @@ class Custom_CSS_Tab {
             [ 'import' => '', 'css' => '' ]
         );
         ?>
-        <!-- 0) Тип підвантаження постів -->
+        <!-- 0) Post loading type -->
         <tr>
             <th scope="row"><?php esc_html_e( 'Тип підвантаження постів', 'embo-settings' ); ?></th>
             <td>
@@ -91,7 +98,7 @@ class Custom_CSS_Tab {
                 </p>
             </td>
         </tr>
-        <!-- Рядок для @import -->
+        <!-- Field for @import lines -->
         <tr>
             <th scope="row">
                 <label for="embo_custom_css_import">
@@ -111,7 +118,7 @@ class Custom_CSS_Tab {
             </td>
         </tr>
 
-        <!-- Рядок для власного CSS -->
+        <!-- Field for custom CSS -->
         <tr>
             <th scope="row">
                 <label for="embo_custom_css_css">
@@ -134,7 +141,7 @@ class Custom_CSS_Tab {
     }
 
     /**
-     * Виводить блок Import (наприклад @import шрифтів) — першим.
+     * Print the Import block (e.g. @import fonts) first.
      */
     public function print_import_css() {
         $opts = wp_parse_args(
@@ -156,7 +163,7 @@ class Custom_CSS_Tab {
     }
 
     /**
-     * Виводить основний Custom CSS — після всіх інших inline-блоків.
+     * Print main Custom CSS after all other inline blocks.
      */
     public function print_main_css() {
         $opts = wp_parse_args(

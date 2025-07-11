@@ -1,6 +1,6 @@
 <?php
 /**
- * Клас для налаштувань брендингу (логотипу).
+ * Handles branding settings such as logo and favicon.
  *
  * @package EmboSettings
  */
@@ -12,21 +12,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Branding_Tab {
     public function __construct() {
-        // Добавляем размер для favicon сразу при её инициализации
+        // Register favicon size during initialization
         if ( function_exists( 'add_image_size' ) ) {
             add_image_size( 'embo_favicon', 32, 32, true );
         }
     }
 
     /**
-     * Назва опції для збереження налаштувань брендингу.
+     * Option name used to store branding settings.
      *
      * @var string
      */
     private $option_name = 'embo_branding_options';
 
     /**
-     * Реєстрація налаштувань брендингу через Settings API.
+     * Register branding settings via the Settings API.
      */
     public function register_settings() {
         register_setting(
@@ -37,59 +37,59 @@ class Branding_Tab {
     }
 
     /**
-     * Санітує вхідні дані брендингу (логотип, favicon).
+     * Sanitize branding input values (logo and favicon).
      *
-     * @param array $input Вхідні дані з форми.
+     * @param array $input Form data.
      * @return array {
-     *     @type string logo               URL логотипу
-     *     @type int    favicon_from_logo  1 — якщо потрібно згенерувати favicon з логотипу
-     *     @type string favicon_custom     URL завантаженого вручну favicon
-     *     @type string favicon            Остаточний URL favicon (згенерований або кастомний)
+     *     @type string logo               Logo URL.
+     *     @type int    favicon_from_logo  1 if favicon should be generated from the logo.
+     *     @type string favicon_custom     Manually uploaded favicon URL.
+     *     @type string favicon            Final favicon URL (generated or custom).
      * }
      */
     public function sanitize_options( $input ) {
         $sanitized = [];
 
-        // 1) URL логотипу
+        // 1) Logo URL
         $sanitized['logo'] = ! empty( $input['logo'] )
             ? esc_url_raw( trim( $input['logo'] ) )
             : '';
 
-        // 2) Чекбокс: згенерувати favicon з логотипу
+        // 2) Checkbox: generate favicon from logo
         $sanitized['favicon_from_logo'] = ! empty( $input['favicon_from_logo'] ) ? 1 : 0;
 
-        // 3) URL власного favicon
+        // 3) Custom favicon URL
         $sanitized['favicon_custom'] = ! empty( $input['favicon_custom'] )
             ? esc_url_raw( trim( $input['favicon_custom'] ) )
             : '';
 
-        // 4) Визначаємо, який favicon використовувати
+        // 4) Determine which favicon to use
         if ( $sanitized['favicon_from_logo'] && $sanitized['logo'] ) {
             $sanitized['favicon'] = $this->make_favicon_from_logo( $sanitized['logo'] );
         } else {
             $sanitized['favicon'] = $sanitized['favicon_custom'];
         }
 
-        // 5) Кастомний текст для футера
+        // 5) Custom footer text
         $sanitized['footer_note'] = isset($input['footer_note']) ? wp_kses_post($input['footer_note']) : '';
 
         return $sanitized;
     }
 
     /**
-     * Повертає URL зрізу 32×32 (size 'embo_favicon') з переданого логотипу.
+     * Return the 32×32 favicon URL generated from the provided logo.
      *
-     * @param string $logo_url URL оригінального логотипа (attachment URL).
-     * @return string URL favicon (або '' якщо не вдалося).
+     * @param string $logo_url Attachment URL of the original logo.
+     * @return string Favicon URL or empty string on failure.
      */
     private function make_favicon_from_logo( $logo_url ) {
-        // Отримуємо ID вкладення по URL
+        // Get attachment ID by URL
         $attachment_id = attachment_url_to_postid( $logo_url );
         if ( ! $attachment_id ) {
             return '';
         }
 
-        // Отримуємо src для size 'embo_favicon'
+        // Get the src for the 'embo_favicon' size
         $src = wp_get_attachment_image_src( $attachment_id, 'embo_favicon' );
         if ( ! $src || empty( $src[0] ) ) {
             return '';
@@ -99,7 +99,7 @@ class Branding_Tab {
     }
 
     /**
-     * Відображає HTML‑форму для брендингу: логотип і налаштування favicon.
+     * Render the branding form: logo and favicon settings.
      */
     public function render_branding_page() {
         $branding_options = get_option( $this->option_name, [
@@ -113,7 +113,7 @@ class Branding_Tab {
             <?php settings_fields( 'embo_branding_group' ); ?>
             <table class="form-table">
 
-                <!-- 1) Логотип -->
+                <!-- 1) Logo -->
                 <tr>
                     <th scope="row">
                         <label for="embo_branding_logo">
@@ -146,7 +146,7 @@ class Branding_Tab {
                     </td>
                 </tr>
 
-                <!-- 2) Генерація favicon з логотипу -->
+                <!-- 2) Generate favicon from logo -->
                 <tr>
                     <th scope="row">
                         <label for="favicon_from_logo">
@@ -164,7 +164,7 @@ class Branding_Tab {
                     </td>
                 </tr>
 
-                <!-- 3) Власний favicon -->
+                <!-- 3) Custom favicon -->
                 <tr>
                     <th scope="row">
                         <label for="favicon_custom">
@@ -197,7 +197,7 @@ class Branding_Tab {
                     </td>
                 </tr>
 
-                <!-- 4) Примітка в футері -->
+                <!-- 4) Footer note -->
                 <tr>
                     <th scope="row">
                         <label for="footer_note"><?php esc_html_e( 'Футерна примітка', 'embo-settings' ); ?></label>
@@ -219,7 +219,7 @@ class Branding_Tab {
     }
 
     /**
-     * Виводить у <head> тег для favicon.
+     * Print the favicon tag inside <head>.
      */
     public function print_favicon_tag() {
         $opts = get_option( $this->option_name, [] );
@@ -240,7 +240,7 @@ class Branding_Tab {
     public function render_footer_note( $attributes = [] ) {
         $opts = get_option( $this->option_name, [] );
         if ( ! empty( $opts['footer_note'] ) ) {
-            // Обрабатываем шорткоды внутри текста, затем безопасно выводим HTML
+            // Process shortcodes inside the text and output safe HTML
             $content = do_shortcode( $opts['footer_note'] );
             return '<div class="embo-footer-note">' . wp_kses_post( $content ) . '</div>';
         }
@@ -252,7 +252,7 @@ class Branding_Tab {
     }
 
     /**
-     * Виводити у футері текст.
+     * Register the footer note block.
      */
     public function register_footer_note_block() {
         register_block_type( 'myblocktheme/footer-note', [

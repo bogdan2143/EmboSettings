@@ -1,0 +1,22 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: EmboSettings\n"
+"Language: uk_UA\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: inc/class-custom-css-tab.php
+msgid "Лінива підвантажка (Load more)"
+msgstr "Лінива підвантажка (Load more)"
+
+#: inc/class-custom-css-tab.php
+msgid "Посторінкова навігація"
+msgstr "Посторінкова навігація"
+
+#: inc/class-cookie-analytics-tab.php
+msgid "Цей сайт використовує cookies для покращення користувацького досвіду. <a href=\"#\">Дізнатися більше</a>."
+msgstr "Цей сайт використовує cookies для покращення користувацького досвіду. <a href=\"#\">Дізнатися більше</a>."
+
+#: inc/class-cookie-analytics-tab.php
+msgid "Прийняти"
+msgstr "Прийняти"

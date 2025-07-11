@@ -1,19 +1,19 @@
-jQuery(document).ready(function($){
-    // Ініціалізація WP Color Picker для полів з кольорами
+jQuery(document).ready(function ($) {
+    // Initialize WP Color Picker for color fields
     $('.embo-color-field').each(function() {
         var $field = $(this);
         var args = {};
 
-        // Для поля "Колір фону сайдбара" додаємо свій стандартний квадратик
+        // Add a custom default swatch for the sidebar background field
         if ( $field.attr('id') === 'aside_background_color' ) {
             args.palettes = [ '#F7F9FA' ];
         }
 
-        // Стартуємо колірний пікер із переданими налаштуваннями
+        // Launch the color picker with provided settings
         $field.wpColorPicker( args );
     });
 
-    // Ініціалізація медіа-завантажувача (для логотипу)
+    // Initialize the media uploader for the logo
     $('.embo-media-upload').on('click', function(e){
         e.preventDefault();
         var target = $(this).data('target');
@@ -23,9 +23,9 @@ jQuery(document).ready(function($){
             return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-            title: 'Виберіть зображення логотипу',
+            title: EmboSettingsAdmin.logoTitle,
             button: {
-                text: 'Вибрати'
+                text: EmboSettingsAdmin.logoButton
             },
             multiple: false
         });

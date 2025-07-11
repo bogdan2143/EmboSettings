@@ -2,8 +2,8 @@
 /**
  * Plugin Name: EmboSettings
  * Plugin URI:  https://embo-studio.ua/
- * Description: Розширення налаштувань теми EmboTheme для інтеграції з Gutenberg.
- * Додає можливість налаштування кольорів, брендингу, меню, а також банера куків і коду аналітики.
+ * Description: EmboTheme extension that integrates with Gutenberg.
+ * Adds color, branding, menu, cookie banner and analytics settings.
  * Author: Pan Canon
  * Author URI: https://embo-studio.ua/
  * Version: 1.3
@@ -14,15 +14,15 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Захист від прямого доступу
+    exit; // Prevent direct access
 }
 
-// Власна константа версії для fallback
+// Custom version constant as fallback
 if ( ! defined( 'EMBO_SETTINGS_VERSION' ) ) {
     define( 'EMBO_SETTINGS_VERSION', '1.3' );
 }
 
-// Підключення файлів класів із логікою плагіна
+// Include plugin class files
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-asset-loader.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-colors-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-branding-tab.php';
@@ -33,62 +33,64 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/class-navigation-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-custom-css-tab.php';
 
 /**
- * Центральний клас плагіна, що ініціалізує всі модулі EmboSettings і реєструє
- * відповідні WordPress‑хуки.
+ * Main plugin class that initializes all modules and registers
+ * the required WordPress hooks.
  */
 class EmboSettings_Plugin {
 
     /**
-     * Об'єкт модуля для налаштувань кольорів теми.
+     * Module instance for theme color settings.
      *
      * @var \EmboSettings\Colors_Tab
      */
     private $colors_tab;
 
     /**
-     * Об'єкт модуля для налаштувань брендингу (логотипу).
+     * Module instance for branding settings (logo).
      *
      * @var \EmboSettings\Branding_Tab
      */
     private $branding_tab;
 
     /**
-     * Об'єкт модуля для візуальних налаштувань адмін‑панелі.
+     * Module instance for admin visual tweaks.
      *
      * @var \EmboSettings\Visual_Admin_Settings
      */
     private $visual_admin;
 
     /**
-     * Об'єкт модуля для банера куків і коду аналітики.
+     * Module instance for cookie banner and analytics code.
      *
      * @var \EmboSettings\Cookie_Analytics_Tab
      */
     private $cookie_analytics_tab;
 
     /**
-     * Об'єкт модуля для сторінки налаштувань із вкладками.
+     * Module instance for the settings page with tabs.
      *
      * @var \EmboSettings\Settings_Page
      */
     private $settings_page;
 
     /**
-     * Об'єкт модуля для додавання вкладки «Меню» в Customizer.
+     * Module instance that adds the "Navigation" tab in the Customizer.
      *
      * @var \EmboSettings\Navigation_Tab
      */
     private $navigation_tab;
     /**
+     * Module instance for custom CSS settings.
+     *
      * @var \EmboSettings\Custom_CSS_Tab
      */
     private $custom_css_tab;
 
     /**
-     * Конструктор. Ініціалізує всі модулі та реєструє хоки.
+     * Constructor. Initializes all modules and registers hooks.
      */
     public function __construct() {
-        // Ініціалізація модулів
+        // Initialize modules
         $this->colors_tab           = new \EmboSettings\Colors_Tab();
         $this->branding_tab         = new \EmboSettings\Branding_Tab();
         $this->visual_admin         = new \EmboSettings\Visual_Admin_Settings();
@@ -102,12 +104,15 @@ class EmboSettings_Plugin {
         );
         $this->navigation_tab       = new \EmboSettings\Navigation_Tab();
 
-        // Реєстрація всіх хуків
+        // Register all hooks for modules that require it
+        $this->navigation_tab->register_hooks();
+
+        // Register all hooks
         $this->init_hooks();
     }
 
     /**
-     * Реєструє всі необхідні WordPress‑хуки для роботи модулів.
+     * Registers all necessary WordPress hooks for the modules.
      */
     private function init_hooks() {
         // — Settings API —
@@ -116,39 +121,39 @@ class EmboSettings_Plugin {
         add_action( 'admin_init', [ $this->cookie_analytics_tab, 'register_settings' ],        10 );
         add_action( 'admin_init', [ $this->custom_css_tab, 'register_settings' ], 10 );
 
-        // — Адмінка: скрипти й стилі —
+        // — Admin: scripts and styles —
         add_action( 'admin_enqueue_scripts', [ $this->colors_tab, 'enqueue_color_picker' ], 10 );
 
-        // — Адмінка: візуальні правки меню —
+        // — Admin: visual menu tweaks —
         add_action( 'admin_menu',        [ $this->visual_admin, 'modify_admin_menu' ],     10 );
         add_action( 'load-nav-menus.php',[ $this->visual_admin, 'add_nav_menu_meta_box' ], 10 );
 
-        // — Адмінка: сторінка налаштувань — 
-        // Реєстрація підменю «Кастомізація» з вкладками виконується тут:
+        // — Admin: settings page —
+        // The "Customization" submenu with tabs is registered here:
         add_action( 'admin_menu', [ $this->settings_page, 'register_submenu' ], 10 );
 
-        // — Фронтенд: кольори теми —
+        // — Frontend: theme colors —
         add_action( 'after_setup_theme',  [ $this->colors_tab, 'override_gutenberg_palette' ], 999 );
         add_action( 'wp_enqueue_scripts', [ $this->colors_tab, 'enqueue_frontend_colors' ],    100 );
         add_action( 'admin_init',         [ $this->colors_tab, 'handle_reset' ],             10 );
         add_action( 'admin_init',         [ $this->colors_tab, 'handle_pull_config' ],       10 );
 
-        // — Фронтенд: банер куків та GA —
+        // — Frontend: cookie banner and GA —
         add_action( 'wp_enqueue_scripts', [ $this->cookie_analytics_tab, 'enqueue_assets' ],     100 );
         add_action( 'wp_head',            [ $this->cookie_analytics_tab, 'print_ga_code' ],       1   );
         add_action( 'wp_footer',          [ $this->cookie_analytics_tab, 'render_cookie_banner' ],100 );
 
-        // — Фронтенд: favicon tag —
+        // — Frontend: favicon tag —
         add_action( 'wp_head', [ $this->branding_tab, 'print_favicon_tag' ], 1 );
 
-        // — Фронтенд: Custom CSS Import (в найперший блок) —
+        // — Frontend: Custom CSS Import (first block) —
         add_action( 'wp_head', [ $this->custom_css_tab, 'print_import_css' ], 0 );
-        // — Фронтенд: Custom CSS Main (в останній блок) —
+        // — Frontend: Custom CSS Main (last block) —
         add_action( 'wp_head', [ $this->custom_css_tab, 'print_main_css' ], 1000 );
 
-        // — Фронтенд: Dynamic Footer Note Block —
+        // — Frontend: Dynamic Footer Note Block —
         add_action( 'init', [ $this->branding_tab, 'register_footer_note_block' ], 20 );
-        // Регистрируем шорткоды (вызов register_shortcodes)
+        // Register shortcodes
         add_action( 'init', [ $this, 'register_shortcodes' ], 15 );
     }
 
@@ -161,7 +166,7 @@ class EmboSettings_Plugin {
 }
 
 /**
- * Ініціалізація плагіна після завантаження всіх плагінів.
+ * Initialize the plugin after all plugins are loaded.
  */
 function embo_settings_init_plugin() {
     new EmboSettings_Plugin();
