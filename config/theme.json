@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "logo": "",
+  "settings": {
+    "color": {
+      "custom": false,
+      "defaultPalette": false,
+      "palette": [
+        { "name": "Background",               "slug": "background",             "color": "#ffffff" },
+        { "name": "Text",                     "slug": "text",                   "color": "#000000" },
+        { "name": "Links",                    "slug": "links",                  "color": "#1e73be" },
+        { "name": "Button",                   "slug": "button",                 "color": "#32373c" },
+        { "name": "Header Background",        "slug": "header-bg",              "color": "#485fc7" },
+        { "name": "Footer Background",        "slug": "footer-bg",              "color": "#333333" },
+        { "name": "Aside Background",         "slug": "aside-bg",               "color": "#f1f1f1" },
+        { "name": "Menu Header Link",         "slug": "header-menu-link",       "color": "#ffffff" },
+        { "name": "Menu Header Hover",        "slug": "header-menu-hover",      "color": "#dddddd" },
+        { "name": "Menu Footer Link",         "slug": "footer-menu-link",       "color": "#ffffff" },
+        { "name": "Menu Footer Hover",        "slug": "footer-menu-hover",      "color": "#dddddd" },
+        { "name": "Tabs Link",                "slug": "tabs-link",              "color": "#000000" },
+        { "name": "Tabs Active Link",         "slug": "tabs-active-link",       "color": "#485fc7" },
+        { "name": "Comment Button",           "slug": "comment-button",         "color": "#3273dc" },
+        { "name": "Read More Button",         "slug": "readmore-button",        "color": "#32373c" },
+        { "name": "Load More Button",         "slug": "loadmore-button",        "color": "#485fc7" }
+      ]
+    },
+    "typography": {
+      "fontSizes": [
+        { "name": "Small",    "slug": "small",    "size": "13px" },
+        { "name": "Normal",   "slug": "normal",   "size": "16px" },
+        { "name": "Large",    "slug": "large",    "size": "36px" },
+        { "name": "X-Large",  "slug": "x-large",  "size": "42px" }
+      ],
+      "fontFamilies": [
+        { "name": "Sans Serif", "slug": "sans-serif", "fontFamily": "Arial, sans-serif" },
+        { "name": "Serif",      "slug": "serif",      "fontFamily": "Georgia, serif" },
+        { "name": "Monospace",  "slug": "monospace",  "fontFamily": "Courier New, monospace" }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background":            "#ffffff",
+      "text":                  "#000000",
+      "link":                  "#1e73be",
+      "button":                "#32373c",
+      "header-menu-link":      "#ffffff",
+      "header-menu-hover":     "#dddddd",
+      "footer-menu-link":      "#ffffff",
+      "footer-menu-hover":     "#dddddd",
+      "tabs-link":             "#000000",
+      "tabs-active-link":      "#485fc7",
+      "comment-button":        "#3273dc",
+      "readmore-button":       "#32373c",
+      "loadmore-button":       "#485fc7"
+    }
+  },
+  "templateParts": [
+    { "name": "header", "title": "Header", "area": "header" },
+    { "name": "aside",  "title": "Aside",  "area": "uncategorized" },
+    { "name": "footer", "title": "Footer", "area": "footer" }
+  ]}

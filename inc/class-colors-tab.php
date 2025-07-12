@@ -62,6 +62,8 @@ class Colors_Tab {
             $this->option_name,
             array( $this, 'sanitize_options' )
         );
+        add_action( 'update_option_' . $this->option_name, array( $this, 'apply_options_to_theme' ), 10, 2 );
+        add_action( 'add_option_' . $this->option_name, array( $this, 'apply_options_to_theme' ), 10, 2 );
     }
 
     /**
@@ -505,4 +507,15 @@ class Colors_Tab {
         </form>
         <?php
     }
+
+    /**
+     * Applies the provided color options to the theme configuration file.
+     *
+     * @param mixed $old_value Previous option value.
+     * @param mixed $value     New option value.
+     */
+    public function apply_options_to_theme( $old_value, $value ) {
+        \EmboSettings\Config_Manager::instance()->update_theme_palette( $value );
+    }
+
 }

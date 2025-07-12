@@ -31,6 +31,7 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/class-cookie-analytics-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-settings-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-navigation-tab.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-custom-css-tab.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-config-manager.php';
 
 /**
  * Main plugin class that initializes all modules and registers
@@ -87,6 +88,13 @@ class EmboSettings_Plugin {
     private $custom_css_tab;
 
     /**
+     * Handles backup and updates for theme configuration.
+     *
+     * @var \EmboSettings\Config_Manager
+     */
+    private $config_manager;
+
+    /**
      * Constructor. Initializes all modules and registers hooks.
      */
     public function __construct() {
@@ -103,6 +111,7 @@ class EmboSettings_Plugin {
             $this->custom_css_tab
         );
         $this->navigation_tab       = new \EmboSettings\Navigation_Tab();
+        $this->config_manager       = \EmboSettings\Config_Manager::instance();
 
         // Register all hooks for modules that require it
         $this->navigation_tab->register_hooks();
