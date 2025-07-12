@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: EmboSettings
- * Plugin URI:  https://embo-studio.ua/
+ * Plugin URI:  https://github.com/bogdan2143/EmboSettings
  * Description: EmboTheme extension that integrates with Gutenberg.
  * Adds color, branding, menu, cookie banner and analytics settings.
  * Author: Pan Canon

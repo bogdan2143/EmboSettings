@@ -1,5 +1,3 @@
-// File: /src/js/embo-toc.js
-
 document.addEventListener('DOMContentLoaded', () => {
   class EmboTOC {
     constructor() {
